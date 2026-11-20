@@ -1011,7 +1011,7 @@ PuglStatus Window::PrivateData::puglEventCallback(PuglView* const view, const Pu
         ev.time   = static_cast<uint>(event->button.time * 1000.0 + 0.5);
         ev.button = event->button.button + 1;
         ev.press  = event->type == PUGL_BUTTON_PRESS;
-        if (pData->autoScaling && 0)
+        if (pData->autoScaling)
         {
             const double scaleFactor = pData->autoScaleFactor;
             ev.pos = Point<double>(event->button.x / scaleFactor, event->button.y / scaleFactor);
@@ -1032,7 +1032,7 @@ PuglStatus Window::PrivateData::puglEventCallback(PuglView* const view, const Pu
         ev.mod   = event->motion.state;
         ev.flags = event->motion.flags;
         ev.time  = static_cast<uint>(event->motion.time * 1000.0 + 0.5);
-        if (pData->autoScaling && 0)
+        if (pData->autoScaling)
         {
             const double scaleFactor = pData->autoScaleFactor;
             ev.pos = Point<double>(event->motion.x / scaleFactor, event->motion.y / scaleFactor);
@@ -1053,7 +1053,7 @@ PuglStatus Window::PrivateData::puglEventCallback(PuglView* const view, const Pu
         ev.mod       = event->scroll.state;
         ev.flags     = event->scroll.flags;
         ev.time      = static_cast<uint>(event->scroll.time * 1000.0 + 0.5);
-        if (pData->autoScaling && 0)
+        if (pData->autoScaling)
         {
             const double scaleFactor = pData->autoScaleFactor;
             ev.pos   = Point<double>(event->scroll.x / scaleFactor, event->scroll.y / scaleFactor);
