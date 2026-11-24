@@ -53,6 +53,7 @@
 #include "travesty/edit_controller.h"
 #include "travesty/factory.h"
 #include "travesty/host.h"
+#include "DistrhoVST3TimePosition.hpp"
 
 #include <map>
 #include <string>
@@ -1416,40 +1417,7 @@ public:
             else
                 fTimePosition.bbt.beatsPerMinute = 120.0;
 
-            if ((ctx->state & (V3_PROCESS_CTX_PROJECT_TIME_VALID|V3_PROCESS_CTX_TIME_SIG_VALID)) == (V3_PROCESS_CTX_PROJECT_TIME_VALID|V3_PROCESS_CTX_TIME_SIG_VALID))
-            {
-                const double ppqPos    = std::abs(ctx->project_time_quarters);
-                const int    ppqPerBar = ctx->time_sig_numerator * 4 / ctx->time_sig_denom;
-                const double barBeats  = (std::fmod(ppqPos, ppqPerBar) / ppqPerBar) * ctx->time_sig_numerator;
-                const double rest      =  std::fmod(barBeats, 1.0);
-
-                fTimePosition.bbt.valid       = true;
-                fTimePosition.bbt.bar         = static_cast<int32_t>(ppqPos) / ppqPerBar + 1;
-                fTimePosition.bbt.beat        = static_cast<int32_t>(barBeats - rest) + 1;
-                fTimePosition.bbt.tick        = rest * fTimePosition.bbt.ticksPerBeat;
-                fTimePosition.bbt.beatsPerBar = ctx->time_sig_numerator;
-                fTimePosition.bbt.beatType    = ctx->time_sig_denom;
-
-                if (ctx->project_time_quarters < 0.0)
-                {
-                    --fTimePosition.bbt.bar;
-                    fTimePosition.bbt.beat = ctx->time_sig_numerator - fTimePosition.bbt.beat + 1;
-                    fTimePosition.bbt.tick = fTimePosition.bbt.ticksPerBeat - fTimePosition.bbt.tick - 1;
-                }
-            }
-            else
-            {
-                fTimePosition.bbt.valid       = false;
-                fTimePosition.bbt.bar         = 1;
-                fTimePosition.bbt.beat        = 1;
-                fTimePosition.bbt.tick        = 0.0;
-                fTimePosition.bbt.beatsPerBar = 4.0f;
-                fTimePosition.bbt.beatType    = 4.0f;
-            }
-
-            fTimePosition.bbt.barStartTick = fTimePosition.bbt.ticksPerBeat*
-                                             fTimePosition.bbt.beatsPerBar*
-                                             (fTimePosition.bbt.bar-1);
+            fillVST3BarBeatTick(*ctx, fTimePosition.bbt);
 
             fPlugin.setTimePosition(fTimePosition);
         }
@@ -3975,6 +3943,7 @@ struct dpf_process_context_requirements : v3_process_context_requirements_cpp {
         return 0x0
             | V3_PROCESS_CTX_NEED_CONTINUOUS_TIME  // V3_PROCESS_CTX_CONT_TIME_VALID
             | V3_PROCESS_CTX_NEED_PROJECT_TIME     // V3_PROCESS_CTX_PROJECT_TIME_VALID
+            | V3_PROCESS_CTX_NEED_BAR_POSITION     // V3_PROCESS_CTX_BAR_POSITION_VALID
             | V3_PROCESS_CTX_NEED_TEMPO            // V3_PROCESS_CTX_TEMPO_VALID
             | V3_PROCESS_CTX_NEED_TIME_SIG         // V3_PROCESS_CTX_TIME_SIG_VALID
             | V3_PROCESS_CTX_NEED_TRANSPORT_STATE; // V3_PROCESS_CTX_PLAYING

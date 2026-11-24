@@ -74,3 +74,9 @@ clean:
 # --------------------------------------------------------------
 
 .PHONY: dgl examples tests
+
+# VST3 timing tests do not require DGL or a plug-in build.
+test-vst3-time:
+	bash tests/run-vst3-time-tests.sh
+
+.PHONY: test-vst3-time
